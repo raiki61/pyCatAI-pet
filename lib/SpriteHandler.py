@@ -2,11 +2,12 @@ from os import listdir
 from random import choice
 from time import time
 
-from PIL import Image, ImageTk
-from tkinter import Label
+from PIL import Image
+from customtkinter import CTkLabel, CTkOptionMenu, CTkImage
 
 from lib.WindowHandler import Handler
 from lib.CommentGenerator import Commenter
+from lib.ChatApp import ChatApp
 
 
 class SpriteController:
@@ -15,18 +16,28 @@ class SpriteController:
         
         self.commenter = Commenter()
 
+        def on_send_message(input):
+            return self.commenter.GenerateCommentByInput(input=input)
+        self.chat_app_window = ChatApp(on_send_message=on_send_message)
+        self.chat_app_window.wm_attributes("-topmost", True)
+
         self.direction: str = "right"
         self.current_animation = self.animation_frames[f"idle_{self.direction}"]
 
         self.root = root
         self.chat_window_root = chat_win_root
 
-        self.label = Label(self.root)
+        self.label = CTkLabel(self.root)
+
+        # add
+        # ラベルにクリックイベントを設定
+        self.root.bind("<Button-1>", self.show_chat)
+        # end
         
-        self.chat_label = Label(self.chat_window_root)
+        self.chat_label = CTkLabel(self.chat_window_root)
         self.chat_response = None
         self.chat = False
-        
+
         self.tts_begun = False
 
         self.moving = False
@@ -73,6 +84,14 @@ class SpriteController:
 
         self.jumped_to_window = False
 
+    def show_chat(self, event):
+        def on_closing():
+            self.chat_app_window.wm_attributes("-alpha", 1 if self.chat else 0)
+        self.chat_app_window.protocol("WM_DELETE_WINDOW", func=on_closing)
+        self.chat_app_window.geometry(f"+{self.pos_x+100}+{self.pos_y}")
+        self.chat_app_window.wm_attributes("-alpha", 1)
+        self.chat_app_window.update()
+
     def GetScreenshotComment(self):
         self.moving = False
         self.jumping = False
@@ -93,7 +112,7 @@ class SpriteController:
         self.pos_x = last_x
         self.pos_y = last_y
 
-        self.commenter.ThreadedSpeaker()
+        # self.commenter.ThreadedSpeaker()
         self.tts_begun = False
 
     def UpdateChatWindowAlpha(self):
@@ -110,11 +129,11 @@ class SpriteController:
         self.chat_label.configure(wraplength=300)
         self.chat_label.configure(anchor="w")
         
-        self.chat_label.configure(background="yellow")
-        self.chat_label.configure(foreground="red")
+        self.chat_label.configure(bg_color="yellow")
+        self.chat_label.configure(fg_color="red")
 
         self.chat_label.pack()
-        self.chat_label.config(cursor=None)
+        self.chat_label.configure(cursor=None)
         
         self.chat_window_root.update_idletasks()
         self.chat_window_root.update()
@@ -123,9 +142,10 @@ class SpriteController:
         wind = "100x100"
         self.root.image = self.current_animation[self.frame_index]
         self.root.geometry(f"{wind}+{self.pos_x}+{self.pos_y}")
-        self.label.configure(image=self.root.image, background="black")
+        self.label.configure(image=self.root.image, bg_color="black",text = "")
+        self.label.configure(cursor="hand1")
         self.label.pack()
-        self.label.config(cursor="none")
+        # self.label.config(cursor="none")
 
         self.root.update_idletasks()
         self.root.update()
@@ -211,7 +231,8 @@ class SpriteController:
         
         current = int(time() - self.chat_init_counter)
         
-        if current >= 60:
+        # if current >= 60:
+        if current >= 5:
             self.chat_init_counter = time()
             return True
         
@@ -316,9 +337,8 @@ class SpriteController:
             for image_file in file_list:
 
                 pil_image = Image.open(dir_path + image_file)
-                resized_image = pil_image.resize((100,100))
-                tk_image = ImageTk.PhotoImage(resized_image)
-
+                # resized_image = pil_image.resize((100,100))
+                tk_image = CTkImage(pil_image, pil_image, (100, 100))
                 if animation_directory in anim_dict:
                     anim_dict[animation_directory].append(tk_image)
                 else:

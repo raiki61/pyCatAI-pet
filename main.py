@@ -1,4 +1,4 @@
-from tkinter import Tk, Toplevel
+from customtkinter import CTk, CTkToplevel
 from datetime import datetime
 import lib.SpriteHandler
 
@@ -8,8 +8,8 @@ class Display:
         self.sprite_controller = lib.SpriteHandler.SpriteController(self.root, self.chat_window)
 
     def ConfigureTk(self):
-        self.root = Tk()
-        self.chat_window = Toplevel()
+        self.root = CTk()
+        self.chat_window = CTkToplevel()
 
         self.root.geometry(f"100x100+100+500")
 
@@ -17,19 +17,20 @@ class Display:
         self.root.lift()
         
         self.root.wm_attributes("-topmost", True)
-        self.root.wm_attributes("-disabled", True)
+        # self.root.wm_attributes("-disabled", True)
+        self.root.configure(cursor="hand2")
         self.root.wm_attributes("-transparentcolor", "black")
 
         self.chat_window.overrideredirect(True)
         self.chat_window.lift()
         
         self.chat_window.wm_attributes("-topmost", True)
-        self.chat_window.wm_attributes("-disabled", True)
+        # self.chat_window.wm_attributes("-disabled", True)
         
         self.chat_window.wm_attributes("-transparentcolor", "white")
         self.chat_window.wm_attributes("-alpha", 0)
         
-        self.chat_window.maxsize(height=200)
+        self.chat_window.maxsize(height=200, width=200)
     
     def Start(self):
         
@@ -46,8 +47,6 @@ class Display:
                 
                 print(e); break;
         exit()
-
-    
 
 def main():
     d = Display()
