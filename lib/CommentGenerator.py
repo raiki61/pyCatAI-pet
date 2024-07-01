@@ -1,4 +1,5 @@
 # import google.generativeai as genai
+import freeGPT.Client
 import pyttsx3
 from threading import Thread
 
@@ -7,6 +8,7 @@ from PIL import ImageGrab
 from g4f.client import Client
 import g4f
 
+import freeGPT 
 
 class Commenter:
     def __init__(self):
@@ -35,7 +37,7 @@ class Commenter:
     
     def GenerateComment(self):
         # prompt = "this is a screnshot of my Windows computer screen. Pretend that you are a cat and do your best to generate a funny comment based on whatever you see me doing."
-        prompt = "あなたは猫です。日本語で話します。デスクトップ上を動きまわる猫です。思うままに話てください。最初の紹介文は不要です。"
+        prompt = "say something."
 
         screenshot = self.TakeScreenshot()
 
@@ -44,15 +46,16 @@ class Commenter:
         return self.GenerateCommentByInput(prompt)
     
     def GenerateCommentByInput(self, input):
-        prompt = "You are cat living in desktop. Detect and match the language entered by the user and speak it. The user's input is next."
-        response = self.client.chat.completions.create(
-            # model="gpt-3.5-turbo",
-            model="gpt-4",
-            provider=g4f.Provider.Theb,
-            messages=[{"role": "user", "content": prompt + input}],
-        )
-        self.latest_response = response.choices[0].message.content
-        return self.latest_response
+        prompt = "You are cat living in desktop. So You must act as a cat. Please answer the following question in Japanese:"
+        # response = self.client.chat.completions.create(
+        #     model="gpt-3.5-turbo",
+        #     # model="gpt-4",
+        #     provider=g4f.Provider.You,
+        #     messages=[{"role": "user", "content": prompt + input}],
+        # )
+        # self.latest_response = response.choices[0].message.content
+        # return self.latest_response
+        return freeGPT.Client.create_completion("gpt3_5", prompt + input)
     
     def ThreadedSpeaker(self):
         _ = Thread(target=self.SpeakComment)
